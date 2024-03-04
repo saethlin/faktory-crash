@@ -12,11 +12,6 @@ repository = "https://github.com/jonhoo/faktory-rs.git"
 keywords = ["faktory", "api-bindings", "work-server", "job-server"]
 categories = ["api-bindings", "asynchronous", "network-programming"]
 
-[features]
-default = []
-tls = ["native-tls"]
-binaries = ["clap"]
-
 [dependencies]
 serde_json = "1.0"
 serde_derive = "1.0"
@@ -30,14 +25,7 @@ chrono = { version = "0.4", features = ["serde", "clock"], default-features = fa
 url = "2"
 atomic-option = "0.1"
 fnv = "1.0.5"
-native-tls = { version = "0.2", optional = true }
-clap = { version = "3.1.0", optional = true }
 thiserror = "1.0.30"
 
 [dev-dependencies]
 mockstream = "0.0.3"
-
-[[bin]]
-name = "loadtest"
-path = "src/bin/loadtest.rs"
-required-features = ["binaries"]

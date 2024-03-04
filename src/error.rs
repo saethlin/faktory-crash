@@ -1,21 +1,5 @@
-//! Enumerates all errors that this crate may return.
-//!
-//! [`Error`] is the top level error enum.
-//! Most consumers should only need to interact with this type.
-//! This is also where more generic errors such as I/O errors are placed,
-//! whereas the more specific errors ([`Connection`] and [`Protocol`]) are
-//! related to logic.
-//!
-//! [`Connect`] describes errors specific to the connection logic, for example
-//! version mismatches or an invalid URL.
-//!
-//! [`Protocol`] describes lower-level errors relating to communication
-//! with the faktory server. Typically, [`Protocol`] errors are the result
-//! of the server sending a response this client did not expect.
-
 use thiserror::Error;
 
-/// The set of observable errors when interacting with a Faktory server.
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum Error {
@@ -41,11 +25,6 @@ pub enum Error {
     /// These generally indicate a mismatch between what the client expects and what the server provided.
     #[error("serialization")]
     Serialization(#[source] serde_json::Error),
-
-    /// Indicates an error in the underlying TLS stream.
-    #[cfg(feature = "tls")]
-    #[error("underlying tls stream")]
-    TlsStream(#[source] native_tls::Error),
 }
 
 /// Errors specific to connection logic.

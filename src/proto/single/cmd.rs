@@ -1,4 +1,5 @@
-use crate::{error::Error, Job};
+use crate::{error::Error};
+use crate::proto::Job;
 
 use std::io::prelude::*;
 
@@ -55,8 +56,6 @@ impl Ack {
     }
 }
 
-// ----------------------------------------------
-
 #[derive(Serialize)]
 pub struct Heartbeat {
     wid: String,
@@ -69,14 +68,6 @@ impl FaktoryCommand for Heartbeat {
         Ok(w.write_all(b"\r\n")?)
     }
 }
-
-impl Heartbeat {
-    pub fn new<S: Into<String>>(wid: S) -> Heartbeat {
-        Heartbeat { wid: wid.into() }
-    }
-}
-
-// ----------------------------------------------
 
 #[derive(Serialize, Clone)]
 pub struct Fail {
@@ -219,7 +210,7 @@ impl FaktoryCommand for Hello {
 
 // ----------------------------------------------
 
-pub struct Push(Job);
+struct Push(Job);
 
 use std::ops::Deref;
 impl Deref for Push {
@@ -243,19 +234,17 @@ impl FaktoryCommand for Push {
     }
 }
 
-// ----------------------------------------------
-
-pub enum QueueAction {
+enum QueueAction {
     Pause,
     Resume,
 }
 
-pub struct QueueControl<'a, S>
+struct QueueControl<'a, S>
 where
     S: AsRef<str>,
 {
-    pub action: QueueAction,
-    pub queues: &'a [S],
+    action: QueueAction,
+    queues: &'a [S],
 }
 
 impl<S: AsRef<str>> FaktoryCommand for QueueControl<'_, S> {
@@ -268,11 +257,5 @@ impl<S: AsRef<str>> FaktoryCommand for QueueControl<'_, S> {
         w.write_all(command)?;
         write_queues::<W, _>(w, self.queues)?;
         Ok(w.write_all(b"\r\n")?)
-    }
-}
-
-impl<'a, S: AsRef<str>> QueueControl<'a, S> {
-    pub fn new(action: QueueAction, queues: &'a [S]) -> Self {
-        Self { action, queues }
     }
 }

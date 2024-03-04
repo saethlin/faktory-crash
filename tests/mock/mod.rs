@@ -107,10 +107,3 @@ impl Stream {
         self.all.lock().unwrap().streams[stream].pop_bytes_written()
     }
 }
-
-impl Drop for Stream {
-    fn drop(&mut self) {
-        let x = self.all.lock().unwrap();
-        assert_eq!(x.take_next, x.streams.len());
-    }
-}

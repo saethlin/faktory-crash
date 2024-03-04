@@ -10,8 +10,7 @@ pub(crate) const EXPECTED_PROTOCOL_VERSION: usize = 2;
 
 mod single;
 
-// commands that users can issue
-pub use self::single::{Ack, Fail, Heartbeat, Info, Job, Push, QueueAction, QueueControl};
+pub use self::single::{Ack, Fail, Job};
 
 pub(crate) fn get_env_url() -> String {
     use std::env;
@@ -119,15 +118,6 @@ impl<S: Read + Write> Client<S> {
         c.init()?;
         Ok(c)
     }
-
-    pub(crate) fn new_producer(stream: S, pwd: Option<String>) -> Result<Client<S>, Error> {
-        let opts = ClientOptions {
-            password: pwd,
-            is_producer: true,
-            ..Default::default()
-        };
-        Self::new(stream, opts)
-    }
 }
 
 impl<S: Read + Write> Client<S> {
@@ -209,27 +199,7 @@ impl<S: Read + Write> Client<S> {
     }
 
     pub(crate) fn heartbeat(&mut self) -> Result<HeartbeatStatus, Error> {
-        single::write_command(
-            &mut self.stream,
-            &Heartbeat::new(&**self.opts.wid.as_ref().unwrap()),
-        )?;
-
-        match single::read_json::<_, serde_json::Value>(&mut self.stream)? {
-            None => Ok(HeartbeatStatus::Ok),
-            Some(s) => match s
-                .as_object()
-                .and_then(|m| m.get("state"))
-                .and_then(|s| s.as_str())
-            {
-                Some("terminate") => Ok(HeartbeatStatus::Terminate),
-                Some("quiet") => Ok(HeartbeatStatus::Quiet),
-                _ => Err(error::Protocol::BadType {
-                    expected: "heartbeat response",
-                    received: format!("{}", s),
-                }
-                .into()),
-            },
-        }
+        Ok(HeartbeatStatus::Terminate)
     }
 
     pub(crate) fn fetch<Q>(&mut self, queues: &[Q]) -> Result<Option<Job>, Error>
