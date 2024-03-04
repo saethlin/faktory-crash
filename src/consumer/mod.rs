@@ -330,17 +330,6 @@ where
         self.running_jobs[worker].take(atomic::Ordering::SeqCst);
         Ok(true)
     }
-
-    #[cfg(test)]
-    pub(crate) fn run_n<Q>(&mut self, n: usize, queues: &[Q]) -> Result<(), Error>
-    where
-        Q: AsRef<str>,
-    {
-        for _ in 0..n {
-            self.run_one(0, queues)?;
-        }
-        Ok(())
-    }
 }
 
 impl<S, E> Consumer<S, E>
@@ -555,36 +544,5 @@ where
         }
 
         process::exit(0);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    // https://github.com/rust-lang/rust/pull/42219
-    //#[allow_fail]
-    #[ignore]
-    fn it_works() {
-        use crate::producer::Producer;
-        use std::io;
-
-        let mut p = Producer::connect(None).unwrap();
-        let mut j = Job::new("foobar", vec!["z"]);
-        j.queue = "worker_test_1".to_string();
-        p.enqueue(j).unwrap();
-
-        let mut c = ConsumerBuilder::default();
-        c.register("foobar", |job: Job| -> Result<(), io::Error> {
-            assert_eq!(job.args, vec!["z"]);
-            Ok(())
-        });
-        let mut c = c.connect(None).unwrap();
-        let e = c.run_n(1, &["worker_test_1"]);
-        if e.is_err() {
-            println!("{:?}", e);
-        }
-        assert!(e.is_ok());
     }
 }

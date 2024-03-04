@@ -95,14 +95,6 @@ impl Stream {
         Self::make(None, streams)
     }
 
-    pub fn with_salt(iters: usize, salt: &str) -> Self {
-        Self::make(Some((iters, salt)), 1)
-    }
-
-    pub fn ok(&mut self, stream: usize) {
-        self.push_bytes_to_read(stream, b"+OK\r\n");
-    }
-
     pub fn ignore(&mut self, stream: usize) {
         self.pop_bytes_written(stream);
     }

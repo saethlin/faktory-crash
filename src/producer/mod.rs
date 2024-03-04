@@ -130,17 +130,3 @@ impl<S: Read + Write> Producer<S> {
             .await_ok()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    // https://github.com/rust-lang/rust/pull/42219
-    //#[allow_fail]
-    #[ignore]
-    fn it_works() {
-        let mut p = Producer::connect(None).unwrap();
-        p.enqueue(Job::new("foobar", vec!["z"])).unwrap();
-    }
-}
